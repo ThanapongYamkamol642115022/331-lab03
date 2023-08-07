@@ -1,4 +1,4 @@
-export interface Passenger {
+export interface CardItem {
   id: number
   first_name: string
   last_name: string

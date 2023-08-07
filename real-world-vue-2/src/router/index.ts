@@ -1,22 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import PassengerListView from '../views/PassengerListView.vue'
+import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
-import PassengerDetailView from '../views/details/PassengerDetailView.vue'
-import PassengerLayoutView from '../views/details/PassengerLayoutView.vue'
-import PassengerAirlineView from '../views/details/PassengerAirlineView.vue'
+import EventDetailView from '../views/details/EventDetailView.vue'
+import EventLayoutView from '../views/details/EventLayoutView.vue'
+import EventAirlineView from '../views/details/EventAirlineView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
-import PassengerEditView from '../views/details/PassengerEditView.vue'
-import NProgress from 'nprogress'
-import PassengerService from '@/services/PassengerService'
-import { usePassengerStore, useAirlineStore } from '@/stores/passenger'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'passenger-list',
-      component: PassengerListView,
+      name: 'home',
+      component: HomeView,
       props: (route) => ({
         page: parseInt((route.query?.page as string) || '1')
       })
@@ -28,51 +24,20 @@ const router = createRouter({
     },
     {
       path: '/passenger/:id',
-      name: 'passenger-layout',
-      component: PassengerLayoutView,
+      name: 'event-layout',
+      component: EventLayoutView,
       props: true,
-      beforeEnter: (to) => {
-        const id: number = parseInt(to.params.id as string)
-        const passengerStore = usePassengerStore()
-        const airlineStore = useAirlineStore()
-        PassengerService.getPassengerById(id)
-          .then((response) => {
-            passengerStore.setPassenger(response.data)
-            PassengerService.getAirlineById(Number(response.data.airlineId))
-              .then((response) => {
-                airlineStore.setAirline(response.data)
-              })
-              .catch((error) => {
-                console.log(error)
-                if (error.response && error.response.status === 404) {
-                  return { name: '404-resource', params: { resource: 'AirlineId' } }
-                }
-              })
-          })
-          .catch((error) => {
-            console.log(error)
-            if (error.response && error.response.status === 404) {
-              return { name: '404-resource', params: { resource: 'PassengerId' } }
-            }
-          })
-      },
       children: [
         {
           path: '',
-          name: 'passenger-detail',
-          component: PassengerDetailView,
+          name: 'event-detail',
+          component: EventDetailView,
           props: true
         },
         {
           path: 'airline',
-          name: 'passenger-airline',
-          component: PassengerAirlineView,
-          props: true
-        },
-        {
-          path: 'edit',
-          name: 'passenger-edit',
-          component: PassengerEditView,
+          name: 'event-airline',
+          component: EventAirlineView,
           props: true
         }
       ]
@@ -88,22 +53,7 @@ const router = createRouter({
       component: NotFoundView,
       props: true
     }
-  ],
-  scrollBehavior(to, from, savedPosition) {
-    if (savedPosition) {
-      return savedPosition
-    } else {
-      return { top: 0 }
-    }
-  },
-})
-
-router.beforeEach(() => {
-  NProgress.start()
-})
-
-router.afterEach(() => {
-  NProgress.done()
+  ]
 })
 
 export default router
